@@ -1,0 +1,19 @@
+# Fly.io Database Configuration — phoxtra-db
+# Database Service Deployment Specification (MariaDB 10.11)
+
+app = "phoxtra-db"
+primary_region = "ams"
+
+[build]
+  image = "mariadb:10.11"
+
+[env]
+  MYSQL_DATABASE = "appwrite"
+  MYSQL_USER = "appwrite"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 3306
+
+  [[services.ports]]
+    port = 3306

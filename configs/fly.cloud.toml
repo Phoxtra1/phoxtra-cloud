@@ -1,0 +1,19 @@
+# Fly.io App Configuration — phoxtra-cloud
+# Primary Application Engine Deployment Specification
+
+app = "phoxtra-cloud"
+primary_region = "ams"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = "stop-app"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[mounts]]
+  source = "phoxtra_data"
+  destination = "/var/lib/phoxtra"
