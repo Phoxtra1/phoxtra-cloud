@@ -1,0 +1,46 @@
+
+services:
+
+  appwrite:
+    image: appwrite/appwrite:${APPWRITE_VERSION}
+    container_name: appwrite
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file:
+      - .env
+    networks:
+      - appwrite
+
+  mariadb:
+    image: mariadb:10.7
+    container_name: appwrite-mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: appwrite
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mariadb:/var/lib/mysql
+    networks:
+      - appwrite
+
+  redis:
+    image: redis:7-alpine
+    container_name: appwrite-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis:/data
+    networks:
+      - appwrite
+
+volumes:
+  mariadb:
+  redis:
+
+networks:
+  appwrite:
+    driver: bridge
