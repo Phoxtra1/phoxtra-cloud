@@ -1,0 +1,30 @@
+# Container Gateway Caddyfile for Phoxtra Cloud on Fly.io
+:80 {
+    # Appwrite Backend API
+    route /v1/* {
+        reverse_proxy 127.0.0.1:8081 {
+            header_up Host {host}
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Proto https
+        }
+    }
+
+    # Appwrite Console Root Redirect
+    route / {
+        redir /console/ 302
+    }
+
+    # Appwrite Console SPA (/console/*)
+    handle_path /console* {
+        root * /var/www/console
+        file_server
+        try_files {path} /index.html
+    }
+
+    # Appwrite Console Static Assets (_app, images, fonts, etc.)
+    handle {
+        root * /var/www/console
+        file_server
+        try_files {path} /index.html
+    }
+}

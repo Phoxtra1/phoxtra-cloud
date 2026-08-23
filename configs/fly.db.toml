@@ -7,9 +7,15 @@ primary_region = "ams"
 [build]
   image = "mariadb:10.11"
 
+cmd = ["mariadbd", "--bind-address=::"]
+
 [env]
   MYSQL_DATABASE = "appwrite"
   MYSQL_USER = "appwrite"
+
+[[mounts]]
+  source = "phoxtra_db_data"
+  destination = "/var/lib/mysql"
 
 [[services]]
   protocol = "tcp"
@@ -17,3 +23,4 @@ primary_region = "ams"
 
   [[services.ports]]
     port = 3306
+

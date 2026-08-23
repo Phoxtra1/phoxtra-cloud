@@ -31,7 +31,7 @@ if (-not (Test-Path $EnvFile)) {
     Write-Host "[ok] .env configuration file already exists." -ForegroundColor Green
 }
 
-# 3. Check Appwrite .env file
+# 3. Check Appwrite & Docker .env files
 $AppwriteEnv = Join-Path $RepoRoot "appwrite\.env"
 $AppwriteEnvExample = Join-Path $RepoRoot "appwrite\.env.example"
 
@@ -42,4 +42,10 @@ if (-not (Test-Path $AppwriteEnv)) {
     }
 }
 
-Write-Host "`n[+] Environment initialization complete." -ForegroundColor Green
+$DockerEnv = Join-Path $RepoRoot "docker\.env"
+if (Test-Path $EnvFile) {
+    Copy-Item -Path $EnvFile -Destination $DockerEnv -Force
+    Write-Host "[ok] Synchronized docker\.env from root .env configuration." -ForegroundColor Green
+}
+Write-Host ""
+Write-Host "[+] Environment initialization complete." -ForegroundColor Green

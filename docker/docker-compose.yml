@@ -1,27 +1,93 @@
-# Phoxtra Cloud Self-Hosting Infrastructure — Production Docker Compose
-# Architecture: Appwrite + MariaDB 10.11 + Redis 7 + Persistent Volumes
+# Phoxtra Cloud Self-Hosting Infrastructure — Production Docker Compose (Phase 2)
+# Architecture: phoxtra-gateway (Caddy) -> phoxtra-console & phoxtra-appwrite -> phoxtra-mariadb 10.11 & phoxtra-redis 7
 
 services:
 
-  phoxtra-appwrite:
-    image: appwrite/appwrite:${APPWRITE_VERSION:-latest}
-    container_name: phoxtra-cloud-appwrite
+  phoxtra-gateway:
+    image: caddy:2.9-alpine
+    container_name: phoxtra-cloud-gateway
     restart: unless-stopped
     ports:
-      - "${PORT_HTTP:-80}:80"
-      - "${PORT_HTTPS:-443}:443"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../configs/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - phoxtra-appwrite
+      - phoxtra-console
+    networks:
+      - phoxtra-net
+    healthcheck:
+      test: ["CMD", "caddy", "version"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  phoxtra-console:
+    image: appwrite/console:latest
+    container_name: phoxtra-cloud-console
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    networks:
+      - phoxtra-net
+
+  phoxtra-appwrite:
+    image: appwrite/appwrite:1.9.6
+    container_name: phoxtra-cloud-appwrite
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        php app/worker.php audits &
+        php app/worker.php databases &
+        php app/worker.php deletes &
+        php app/worker.php functions &
+        php app/worker.php mails &
+        php app/worker.php messaging &
+        php app/worker.php webhooks &
+        php app/worker.php statsUsage &
+        php app/worker.php migrations &
+        php app/worker.php builds &
+        php app/worker.php certificates &
+        exec docker-php-entrypoint php app/http.php
     environment:
       - _APP_ENV=${_APP_ENV:-production}
       - _APP_DOMAIN=${_APP_DOMAIN:-cloud.phoxtra.com}
+      - _APP_DOMAIN_TARGET=${_APP_DOMAIN_TARGET:-cloud.phoxtra.com}
+      - _APP_DOMAIN_TARGET_CNAME=${_APP_DOMAIN_TARGET_CNAME:-cloud.phoxtra.com}
+      - _APP_DOMAIN_CONSOLE=${_APP_DOMAIN_CONSOLE:-localhost}
+      - _APP_DOMAIN_API=${_APP_DOMAIN_API:-localhost}
+      - _APP_CONSOLE_HOSTNAMES=${_APP_CONSOLE_HOSTNAMES:-localhost,127.0.0.1,cloud.phoxtra.localhost,cloud.phoxtra.com}
+      - _APP_EMAIL_CERTIFICATES=${_APP_EMAIL_CERTIFICATES:-admin@phoxtra.com}
+      - _APP_OPTIONS_FORCE_HTTPS=${_APP_OPTIONS_FORCE_HTTPS:-disabled}
+      - _APP_OPENSSL_KEY_V1=${_APP_OPENSSL_KEY_V1:-75d5bbf089a47db14672af094ecd88fe03abd745d77d82809432a6be2c6f35b6}
+      - _APP_SYSTEM_EMAIL_NAME=${_APP_SYSTEM_EMAIL_NAME:-Phoxtra Cloud}
+      - _APP_SYSTEM_EMAIL_ADDRESS=${_APP_SYSTEM_EMAIL_ADDRESS:-admin@phoxtra.com}
+      - _APP_CONSOLE_WHITELIST_ROOT=${_APP_CONSOLE_WHITELIST_ROOT:-disabled}
+
+      - _APP_DB_ADAPTER=${_APP_DB_ADAPTER:-mariadb}
+      - _APP_DATABASE_SHARED_TABLES=${_APP_DATABASE_SHARED_TABLES:-database_db_main}
+      - _APP_DATABASE_SHARED_NAMESPACE=${_APP_DATABASE_SHARED_NAMESPACE:-appwrite}
+      - _APP_CONNECTIONS_DATABASE=${_APP_CONNECTIONS_DATABASE:-db_main=mariadb://appwrite:c5dde33a93bae60b4f72728f30e133ef03c2012cc1b70095@phoxtra-mariadb:3306/appwrite}
       - _APP_DB_HOST=phoxtra-mariadb
       - _APP_DB_PORT=3306
       - _APP_DB_USER=${MYSQL_USER:-appwrite}
-      - _APP_DB_PASS=${MYSQL_PASSWORD}
+      - _APP_DB_PASS=${MYSQL_PASSWORD:-c5dde33a93bae60b4f72728f30e133ef03c2012cc1b70095}
       - _APP_DB_SCHEMA=${MYSQL_DATABASE:-appwrite}
       - _APP_REDIS_HOST=phoxtra-redis
       - _APP_REDIS_PORT=6379
       - _APP_REDIS_USER=
-      - _APP_REDIS_PASS=${REDIS_PASSWORD}
+      - _APP_REDIS_PASS=
+      - _APP_REDIS_AUTH=
+
+
+
     volumes:
       - appwrite-uploads:/storage/uploads
       - appwrite-certificates:/storage/certificates
@@ -38,11 +104,13 @@ services:
     image: mariadb:10.11
     container_name: phoxtra-cloud-mariadb
     restart: unless-stopped
+    env_file:
+      - ../.env
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-3ee3e3567efbcb93af77250a25f01e90bdd883b8d033b597}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-appwrite}
       MYSQL_USER: ${MYSQL_USER:-appwrite}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-c5dde33a93bae60b4f72728f30e133ef03c2012cc1b70095}
     volumes:
       - mariadb-data:/var/lib/mysql
     networks:
@@ -58,16 +126,19 @@ services:
     image: redis:7-alpine
     container_name: phoxtra-cloud-redis
     restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    env_file:
+      - ../.env
+    command: redis-server
     volumes:
       - redis-data:/data
     networks:
       - phoxtra-net
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+
 
 volumes:
   mariadb-data:
@@ -80,7 +151,12 @@ volumes:
     driver: local
   appwrite-config:
     driver: local
+  caddy-data:
+    driver: local
+  caddy-config:
+    driver: local
 
 networks:
   phoxtra-net:
     driver: bridge
+

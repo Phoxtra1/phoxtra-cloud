@@ -1,6 +1,6 @@
 # Phoxtra Cloud — Disaster Recovery Runbook
 
-**Target Goal:** Recover full Phoxtra Cloud self-hosted infrastructure on a fresh machine or server after loss of previous environment.
+**Target Goal:** Recover full Phoxtra Cloud self-hosted infrastructure with Caddy Gateway on a fresh machine or server after loss of previous environment.
 
 ---
 
@@ -25,7 +25,7 @@ cd phoxtra-cloud
 ### Step 2: Environment & Directory Initialization
 Run the initialization script to prepare structural directories and generate initial environment files:
 ```powershell
-.\scripts\setup.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1
 ```
 *(On Linux/macOS, copy templates manually: `cp .env.example .env` and `cp appwrite/.env.example appwrite/.env`)*
 
@@ -39,11 +39,11 @@ Edit `.env` and inject the actual production credentials retrieved from your sec
 ### Step 4: Local Docker Multi-Container Launch
 Bring up the multi-container production infrastructure stack:
 ```bash
-docker compose -f docker/docker-compose.yml up -d
+docker compose --env-file .env -f docker/docker-compose.yml up -d
 ```
 Verify container status:
 ```bash
-docker compose -f docker/docker-compose.yml ps
+docker compose --env-file .env -f docker/docker-compose.yml ps
 ```
 
 ### Step 5: Database Data Restoration
@@ -52,31 +52,29 @@ If recovering from a database backup archive in `backups/`:
 docker exec -i phoxtra-cloud-mariadb mariadb -u root -p<YOUR_ROOT_PASSWORD> < backups/phoxtra-db-dump-TIMESTAMP.sql
 ```
 
-### Step 6: Fly.io Cloud Environment Resumption
-If resuming the Fly.io cloud deployment:
-1. Authenticate Fly CLI:
-   ```powershell
-   & "$ENV:USERPROFILE\.fly\bin\flyctl.exe" auth login
-   ```
-2. Resume suspended apps:
-   ```powershell
-   & "$ENV:USERPROFILE\.fly\bin\flyctl.exe" machine start --app phoxtra-cloud 784625ef44e258
-   ```
-3. Deploy updated configuration if necessary:
-   ```powershell
-   & "$ENV:USERPROFILE\.fly\bin\flyctl.exe" deploy -c configs/fly.cloud.toml
-   ```
-
-### Step 7: System Health Verification
-Run the automated system health check utility to verify container health, cloud status, and endpoints:
+### Step 6: System Health & Gateway Verification
+Run the automated system health check utility to verify container health and local gateway routing:
 ```powershell
-.\scripts\healthcheck.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\healthcheck.ps1
 ```
+
+Or verify manually via `curl.exe`:
+```powershell
+# Test HTTP -> HTTPS 308 Redirect
+curl.exe -k -I http://localhost
+
+# Test HTTPS Gateway -> Appwrite Route
+curl.exe -k -I https://localhost
+curl.exe -k -I https://cloud.phoxtra.localhost
+```
+
 ---
 
 ## 3. Recovery Verification Checklist
 
-- [ ] All Docker containers (`phoxtra-cloud-appwrite`, `phoxtra-cloud-mariadb`, `phoxtra-cloud-redis`) report `healthy` state.
+- [ ] All Docker containers (`phoxtra-cloud-gateway`, `phoxtra-cloud-appwrite`, `phoxtra-cloud-mariadb`, `phoxtra-cloud-redis`) report `healthy` or `running` state.
+- [ ] Only `phoxtra-cloud-gateway` binds host ports `80` and `443`.
 - [ ] Database schema and tables populated cleanly without errors.
-- [ ] Redis cache responds to ping on port 6379.
-- [ ] `https://cloud.phoxtra.com` and `https://phoxtra-cloud.fly.dev` respond to HTTP requests.
+- [ ] Redis cache responds to ping on port 6379 internally.
+- [ ] `http://localhost` returns `308 Permanent Redirect` to `https://localhost/`.
+- [ ] `https://localhost` and `https://cloud.phoxtra.localhost` return Appwrite application responses forwarded through Caddy.

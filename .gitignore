@@ -12,9 +12,7 @@ appwrite/.env.*
 *.pfx
 *.p12
 *.crt
-ssl/*.key
-ssl/*.pem
-ssl/*.crt
+ssl/*
 !ssl/.gitkeep
 
 # Backup Dumps & Database Archives
@@ -23,15 +21,12 @@ ssl/*.crt
 *.dump
 *.tar.gz
 *.zip
-backups/*.sql
-backups/*.sql.gz
-backups/*.dump
-backups/*.tar.gz
+backups/*
 !backups/.gitkeep
 
 # Runtime Logs
 *.log
-logs/*.log
+logs/*
 !logs/.gitkeep
 
 # Machine & OS Specific Files
@@ -41,3 +36,4 @@ Thumbs.db
 .vscode/
 *.tmp
 *.swp
+node_modules/

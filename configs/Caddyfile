@@ -1,0 +1,27 @@
+# Phoxtra Cloud Infrastructure — Production Gateway (Caddyfile)
+
+{
+    admin off
+}
+
+cloud.phoxtra.localhost, localhost, 127.0.0.1, cloud.phoxtra.com {
+    tls internal
+
+    # Appwrite Engine & API Endpoints
+    handle /v1* {
+        reverse_proxy phoxtra-appwrite:80 {
+            header_up Host {host}
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Proto https
+        }
+    }
+
+    # Appwrite Console Web Interface (SPA routes)
+    handle {
+        reverse_proxy phoxtra-console:80 {
+            header_up Host {host}
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Proto https
+        }
+    }
+}
