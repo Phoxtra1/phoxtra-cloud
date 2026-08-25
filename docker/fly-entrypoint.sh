@@ -34,6 +34,38 @@ php app/worker.php migrations &
 php app/worker.php builds &
 php app/worker.php certificates &
 
+# Generate dynamic Caddyfile gateway configuration
+cat << 'EOF' > /etc/caddy/Caddyfile.fly
+# Container Gateway Caddyfile for Phoxtra Cloud on Fly.io
+:80 {
+    # Appwrite Backend API
+    handle /v1* {
+        reverse_proxy 127.0.0.1:8081 {
+            header_up Host {host}
+            header_up X-Forwarded-Host {host}
+            header_up X-Forwarded-Proto https
+        }
+    }
+
+    # Appwrite Console Root and Route Redirects
+    @root path /
+    redir @root /console/ 302
+
+    @console path /console
+    redir @console /console/ 301
+
+    @login path /login /register
+    redir @login /console{path} 301
+
+    # Appwrite Console SPA & Static Assets Fallback
+    handle {
+        root * /var/www
+        try_files {path} /console/index.html
+        file_server
+    }
+}
+EOF
+
 # Start Caddy Gateway in background on port 80 (routes /v1 to Swoole on 8081, and / to Console static SPA)
 echo "[Phoxtra Engine] Starting internal Caddy Gateway on port 80..."
 caddy start --config /etc/caddy/Caddyfile.fly
