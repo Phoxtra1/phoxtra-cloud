@@ -8,7 +8,7 @@ LABEL description="Phoxtra Cloud Self-Hosting Platform Engine"
 
 # Copy Appwrite Console SPA static files to /var/www/console
 RUN rm -rf /var/www/console/*
-COPY --from=console_builder /usr/share/nginx/html/console/console/ /var/www/console/
+COPY --from=console_builder /usr/share/nginx/html/ /var/www/console/
 
 # Install Redis server, Socat, and Caddy inside container for standalone execution
 RUN apk add --no-cache redis socat caddy
