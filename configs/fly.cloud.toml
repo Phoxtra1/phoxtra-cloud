@@ -5,7 +5,7 @@ app = "phoxtra-cloud"
 primary_region = "ams"
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = "../Dockerfile"
 
 [env]
   _APP_ENV = "production"
