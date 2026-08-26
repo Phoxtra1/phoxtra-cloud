@@ -34,6 +34,13 @@ php app/worker.php migrations &
 php app/worker.php builds &
 php app/worker.php certificates &
 
+# Self-healing fix: Ensure Appwrite Console SPA assets are directly in /var/www/console/
+if [ -d "/var/www/console/console" ]; then
+    echo "[Phoxtra Engine] Flattening nested Console SPA assets into /var/www/console..."
+    cp -rf /var/www/console/console/* /var/www/console/
+    rm -rf /var/www/console/console
+fi
+
 # Generate dynamic Caddyfile gateway configuration
 cat << 'EOF' > /etc/caddy/Caddyfile.fly
 # Container Gateway Caddyfile for Phoxtra Cloud on Fly.io
