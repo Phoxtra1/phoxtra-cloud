@@ -1,6 +1,12 @@
 #!/bin/sh
 set -e
 
+# Explicitly force whitelist environment defaults
+export _APP_CONSOLE_WHITELIST_ROOT="enabled"
+export _APP_CONSOLE_WHITELIST_EMAILS="phoxmanglobal@gmail.com"
+export _APP_CONSOLE_WHITELIST_DOMAINS="gmail.com,phoxtra.com"
+export _APP_CONSOLE_WHITELIST_IPS=""
+
 # Start internal Redis service in background with optional authentication
 echo "[Phoxtra Engine] Starting internal Redis service..."
 if [ -n "$_APP_REDIS_PASS" ]; then
@@ -67,7 +73,7 @@ cat << 'EOF' > /etc/caddy/Caddyfile.fly
     # Appwrite Console SPA & Static Assets Fallback
     handle {
         root * /var/www
-        try_files {path} /console/index.html
+        try_files {path} {path}/ /console/index.html
         file_server
     }
 }
