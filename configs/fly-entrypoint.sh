@@ -74,7 +74,7 @@ cat << 'EOF' > /etc/caddy/Caddyfile.fly
     handle /console* {
         root * /var/www/console
         uri strip_prefix /console
-        try_files {path} {path}/ /index.html
+        try_files {path} {path}.html {path}/ /index.html
         file_server
     }
 }
