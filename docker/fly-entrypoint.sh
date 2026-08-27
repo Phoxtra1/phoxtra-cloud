@@ -70,18 +70,11 @@ cat << 'EOF' > /etc/caddy/Caddyfile.fly
     @login path /login /register
     redir @login /console{path} 301
 
-    # Appwrite Console SPA Static Server with Fallback
+    # Appwrite Console SPA Gateway
     handle /console* {
-        root * /var/www
-        @notFile not file {path}
-        rewrite @notFile /console/index.html
-        file_server
-    }
-
-    handle {
-        root * /var/www
-        @notFile not file {path}
-        rewrite @notFile /console/index.html
+        root * /var/www/console
+        uri strip_prefix /console
+        try_files {path} {path}/ /index.html
         file_server
     }
 }
