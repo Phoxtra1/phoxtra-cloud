@@ -72,9 +72,8 @@ cat << 'EOF' > /etc/caddy/Caddyfile.fly
 
     # Appwrite Console SPA Gateway
     handle /console* {
-        root * /var/www/console
-        uri strip_prefix /console
-        try_files {path} {path}.html {path}/ /index.html
+        root * /var/www
+        try_files {path} {path}/ /console/index.html
         file_server
     }
 }
