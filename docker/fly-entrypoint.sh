@@ -24,7 +24,7 @@ echo "[Phoxtra Engine] Redis service is UP and running."
 
 # Start MariaDB IPv6 bridge via socat (bridges 127.0.0.1:3306 -> MariaDB 6PN)
 echo "[Phoxtra Engine] Starting MariaDB IPv6 proxy bridge..."
-socat TCP-LISTEN:3306,fork,reuseaddr TCP:[fdaa:18:121c:a7b:c8:6a54:46cd:2]:3306 &
+socat TCP-LISTEN:3306,fork,reuseaddr TCP:[fdaa:18:121c:a7b:c8:7883:d487:2]:3306 &
 
 # Start Appwrite worker processes in background
 echo "[Phoxtra Engine] Starting Appwrite worker processes..."
@@ -72,6 +72,12 @@ cat << 'EOF' > /etc/caddy/Caddyfile.fly
 
     # Appwrite Console SPA Gateway
     handle /console* {
+        root * /var/www
+        try_files {path} {path}/ /console/index.html
+        file_server
+    }
+
+    handle {
         root * /var/www
         try_files {path} {path}/ /console/index.html
         file_server
