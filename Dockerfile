@@ -16,7 +16,7 @@ RUN apk add --no-cache redis socat caddy
 # Copy Caddy gateway configuration and Fly entrypoint script
 COPY configs/Caddyfile.fly /etc/caddy/Caddyfile.fly
 COPY ./docker/fly-entrypoint.sh /usr/local/bin/fly-entrypoint.sh
-RUN chmod +x /usr/local/bin/fly-entrypoint.sh && test -f /usr/local/bin/fly-entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/fly-entrypoint.sh && chmod +x /usr/local/bin/fly-entrypoint.sh && test -f /usr/local/bin/fly-entrypoint.sh
 
 # Expose HTTP and HTTPS services
 EXPOSE 80 443
