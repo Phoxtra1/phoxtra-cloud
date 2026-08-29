@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@iarna/toml": "^2.2.5",
     "node-appwrite": "^28.0.0"
   }
 }
