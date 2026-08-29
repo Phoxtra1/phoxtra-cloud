@@ -36,7 +36,7 @@ if not machine_data:
 
 # 2. Modify whitelist env vars
 env = machine_data["config"]["env"]
-env["_APP_CONSOLE_WHITELIST_ROOT"] = "enabled"
+env["_APP_CONSOLE_WHITELIST_ROOT"] = "disabled"
 env["_APP_CONSOLE_WHITELIST_EMAILS"] = "phoxmanglobal@gmail.com,admin.phoxtra@gmail.com,admin@phoxtra.com"
 env["_APP_CONSOLE_WHITELIST_DOMAINS"] = "gmail.com,phoxtra.com"
 env["_APP_CONSOLE_WHITELIST_IPS"] = ""
