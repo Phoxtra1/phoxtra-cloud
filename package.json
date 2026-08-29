@@ -1,5 +1,28 @@
 {
   "dependencies": {
-    "node-appwrite": "^28.0.0"
-  }
+    "node-appwrite": "^28.0.0",
+    "playwright": "^1.62.1"
+  },
+  "name": "app",
+  "version": "1.0.0",
+  "description": "Repository for managing self-hosting infrastructure definitions, deployment configurations, and operational assets for **Phoxtra Cloud**.",
+  "main": "test_browser.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Phoxtra1/phoxtra-cloud.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Phoxtra1/phoxtra-cloud/issues"
+  },
+  "homepage": "https://github.com/Phoxtra1/phoxtra-cloud#readme"
 }
