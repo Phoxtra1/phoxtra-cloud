@@ -1,48 +1,45 @@
-# Fly.io App Configuration — phoxtra-cloud
-# Primary Application Engine Deployment Specification (Region: AMS - Amsterdam)
-
 app = "phoxtra-cloud"
 primary_region = "ams"
 
 [build]
-  dockerfile = "../Dockerfile"
+dockerfile = "../Dockerfile"
 
 [env]
-  _APP_ENV = "production"
-  _APP_DOMAIN = "cloud.phoxtra.com"
-  _APP_DOMAIN_TARGET = "cloud.phoxtra.com"
-  _APP_CONSOLE_HOSTNAMES = "localhost,127.0.0.1,cloud.phoxtra.localhost,cloud.phoxtra.com,phoxtra-cloud.fly.dev"
-  _APP_OPTIONS_FORCE_HTTPS = "disabled"
-  _APP_OPTIONS_ROUTER_PROTECTION = "disabled"
-  _APP_CONSOLE_WHITELIST_ROOT = "enabled"
-  _APP_CONSOLE_WHITELIST_EMAILS = "phoxmanglobal@gmail.com"
-  _APP_CONSOLE_WHITELIST_DOMAINS = "gmail.com"
-  _APP_CONSOLE_WHITELIST_IPS = ""
-  _APP_OPENSSL_KEY_V1 = "75d5bbf089a47db14672af094ecd88fe03abd745d77d82809432a6be2c6f35b6"
-  _APP_SYSTEM_EMAIL_NAME = "Phoxtra Cloud"
-  _APP_SYSTEM_EMAIL_ADDRESS = "phoxmanglobal@gmail.com"
-  _APP_DB_ADAPTER = "mariadb"
-  _APP_DATABASE_SHARED_TABLES = "database_db_main"
-  _APP_DATABASE_SHARED_NAMESPACE = "appwrite"
-  _APP_CONNECTIONS_DATABASE = "db_main=mariadb://appwrite:c5dde33a93bae60b4f72728f30e133ef03c2012cc1b70095@127.0.0.1:3306/appwrite"
-  _APP_CONNECTIONS_DB_LOGS = "logs=mariadb://appwrite:c5dde33a93bae60b4f72728f30e133ef03c2012cc1b70095@127.0.0.1:3306/appwrite"
-  _APP_DB_HOST = "127.0.0.1"
-  _APP_DB_PORT = "3306"
-  _APP_DB_USER = "appwrite"
-  _APP_DB_SCHEMA = "appwrite"
-  _APP_REDIS_HOST = "127.0.0.1"
-  _APP_REDIS_PORT = "6379"
-  _APP_REDIS_USER = ""
-  _APP_REDIS_PASS = ""
-  _APP_REDIS_AUTH = ""
+_APP_ENV = "production"
+_APP_DOMAIN = "cloud.phoxtra.com"
+_APP_DOMAIN_TARGET = "cloud.phoxtra.com"
+_APP_CONSOLE_HOSTNAMES = "cloud.phoxtra.com"
+_APP_OPTIONS_FORCE_HTTPS = "disabled"
+_APP_OPTIONS_ROUTER_PROTECTION = "disabled"
+_APP_CONSOLE_WHITELIST_ROOT = "disabled"
+_APP_CONSOLE_WHITELIST_EMAILS = "phoxmanglobal@gmail.com"
+_APP_CONSOLE_WHITELIST_DOMAINS = "gmail.com,phoxtra.com"
+_APP_CONSOLE_WHITELIST_IPS = ""
+_APP_OPENSSL_KEY_V1 = "75d5bbf089a47db14672af094ecd88fe03abd745d77d82809432a6be2c6f35b6"
+_APP_SYSTEM_EMAIL_NAME = "Phoxtra Cloud"
+_APP_SYSTEM_EMAIL_ADDRESS = "phoxmanglobal@gmail.com"
+_APP_DB_ADAPTER = "mariadb"
+_APP_DATABASE_SHARED_TABLES = "database_db_main"
+_APP_DATABASE_SHARED_NAMESPACE = "appwrite"
+_APP_CONNECTIONS_DATABASE = "db_main=mariadb://appwrite:c5dde33a93bae60b4f72728f30e133ef03c2012cc1b70095@127.0.0.1:3306/appwrite"
+_APP_CONNECTIONS_DB_LOGS = "logs=mariadb://appwrite:c5dde33a93bae60b4f72728f30e133ef03c2012cc1b70095@127.0.0.1:3306/appwrite"
+_APP_DB_HOST = "127.0.0.1"
+_APP_DB_PORT = "3306"
+_APP_DB_USER = "appwrite"
+_APP_DB_SCHEMA = "appwrite"
+_APP_REDIS_HOST = "127.0.0.1"
+_APP_REDIS_PORT = "6379"
+_APP_REDIS_USER = ""
+_APP_REDIS_PASS = ""
+_APP_REDIS_AUTH = ""
 
 [http_service]
-  internal_port = 80
-  force_https = true
-  auto_stop_machines = false
-  auto_start_machines = true
-  min_machines_running = 1
+internal_port = 80
+force_https = true
+auto_stop_machines = false
+auto_start_machines = true
+min_machines_running = 1
 
 [[mounts]]
-  source = "phoxtra_data"
-  destination = "/var/lib/phoxtra"
+source = "phoxtra_data"
+destination = "/var/lib/phoxtra"
