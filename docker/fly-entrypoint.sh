@@ -3,8 +3,8 @@ set -e
 
 # Explicitly force whitelist environment defaults
 export _APP_CONSOLE_WHITELIST_ROOT="disabled"
-export _APP_CONSOLE_WHITELIST_EMAILS="phoxmanglobal@gmail.com"
-export _APP_CONSOLE_WHITELIST_DOMAINS="gmail.com,phoxtra.com"
+export _APP_CONSOLE_WHITELIST_EMAILS=""
+export _APP_CONSOLE_WHITELIST_DOMAINS=""
 export _APP_CONSOLE_WHITELIST_IPS=""
 
 # Start internal Redis service in background with optional authentication
@@ -48,7 +48,7 @@ if [ -d "/var/www/console/console" ]; then
 fi
 
 # Generate dynamic Caddyfile gateway configuration
-cat << 'EOF' > /etc/caddy/Caddyfile.fly
+cat << 'CADDYEOF' > /etc/caddy/Caddyfile.fly
 # Container Gateway Caddyfile for Phoxtra Cloud on Fly.io
 :80 {
     # Appwrite Backend API
@@ -83,7 +83,7 @@ cat << 'EOF' > /etc/caddy/Caddyfile.fly
         file_server
     }
 }
-EOF
+CADDYEOF
 
 # Start Caddy Gateway in background on port 80 (routes /v1 to Swoole on 8081, and / to Console static SPA)
 echo "[Phoxtra Engine] Starting internal Caddy Gateway on port 80..."

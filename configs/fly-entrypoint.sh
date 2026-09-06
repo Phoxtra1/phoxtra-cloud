@@ -2,9 +2,9 @@
 set -e
 
 # Explicitly force whitelist environment defaults
-export _APP_CONSOLE_WHITELIST_ROOT="enabled"
-export _APP_CONSOLE_WHITELIST_EMAILS="phoxmanglobal@gmail.com"
-export _APP_CONSOLE_WHITELIST_DOMAINS="gmail.com,phoxtra.com"
+export _APP_CONSOLE_WHITELIST_ROOT="disabled"
+export _APP_CONSOLE_WHITELIST_EMAILS=""
+export _APP_CONSOLE_WHITELIST_DOMAINS=""
 export _APP_CONSOLE_WHITELIST_IPS=""
 
 # Start internal Redis service in background with optional authentication
