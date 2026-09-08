@@ -88,6 +88,8 @@ services:
 
 
 
+      - _APP_STORAGE_LIMIT=${_APP_STORAGE_LIMIT:-1073741824}
+
     volumes:
       - appwrite-uploads:/storage/uploads
       - appwrite-certificates:/storage/certificates
@@ -104,6 +106,7 @@ services:
     image: mariadb:10.11
     container_name: phoxtra-cloud-mariadb
     restart: unless-stopped
+    command: mariadbd --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci --max-allowed-packet=64M --innodb-buffer-pool-size=512M --max-connections=150 --innodb-log-file-size=64M
     env_file:
       - ../.env
     environment:

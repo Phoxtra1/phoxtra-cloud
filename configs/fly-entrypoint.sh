@@ -1,11 +1,12 @@
 #!/bin/sh
 set -e
 
-# Explicitly force whitelist environment defaults
-export _APP_CONSOLE_WHITELIST_ROOT="enabled"
-export _APP_CONSOLE_WHITELIST_EMAILS="phoxmanglobal@gmail.com"
-export _APP_CONSOLE_WHITELIST_DOMAINS="gmail.com,phoxtra.com"
-export _APP_CONSOLE_WHITELIST_IPS=""
+# Explicitly set whitelist environment defaults with fallback to runtime env
+export _APP_CONSOLE_WHITELIST_ROOT="${_APP_CONSOLE_WHITELIST_ROOT:-disabled}"
+export _APP_CONSOLE_WHITELIST_EMAILS="${_APP_CONSOLE_WHITELIST_EMAILS:-}"
+export _APP_CONSOLE_WHITELIST_DOMAINS="${_APP_CONSOLE_WHITELIST_DOMAINS:-}"
+export _APP_CONSOLE_WHITELIST_IPS="${_APP_CONSOLE_WHITELIST_IPS:-}"
+export _APP_STORAGE_LIMIT="${_APP_STORAGE_LIMIT:-1073741824}"
 
 # Start internal Redis service in background with optional authentication
 echo "[Phoxtra Engine] Starting internal Redis service..."
@@ -22,9 +23,9 @@ until ([ -n "$_APP_REDIS_PASS" ] && redis-cli -a "$_APP_REDIS_PASS" ping > /dev/
 done
 echo "[Phoxtra Engine] Redis service is UP and running."
 
-# Start MariaDB IPv6 bridge via socat (bridges 127.0.0.1:3306 -> MariaDB 6PN)
-echo "[Phoxtra Engine] Starting MariaDB IPv6 proxy bridge..."
-socat TCP-LISTEN:3306,fork,reuseaddr TCP:[fdaa:18:121c:a7b:c8:6a54:46cd:2]:3306 &
+# Start MariaDB proxy bridge via socat (bridges 127.0.0.1:3306 -> phoxtra-db.internal:3306)
+echo "[Phoxtra Engine] Starting MariaDB proxy bridge..."
+socat TCP-LISTEN:3306,fork,reuseaddr TCP:phoxtra-db.internal:3306 &
 
 # Start Appwrite worker processes in background
 echo "[Phoxtra Engine] Starting Appwrite worker processes..."

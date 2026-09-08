@@ -11,7 +11,7 @@ import json
 import time
 
 context = ssl._create_unverified_context()
-token = "FlyV1 fm2_lJPECAAAAAAACLbexBAGoYYmm4BfJvlXVn/5BWQrwrVodHRwczovL2FwaS5mbHkuaW8vdjGWAJLOABBoMh8Lk7lodHRwczovL2FwaS5mbHkuaW8vYWFhL3YxxDy6Ge7NZgap/u9nGVx3086mMno8thKumBwaqllxgl66S3Djv2H46EmzrC215JKct7z02Fe4RoG8ptRYT/LETrrgCptmETdwssh9VTDYP4N+zrScLOnyg6YvSB73L1NFmWi1Z27KIabgu4+sK352G7c7Ci7aoyDiuXnc3jANgAc/0ctCTnMyj/MImQSfrA2SlAORgc4A61nTHwWRgqdidWlsZGVyH6J3Zx8BxCDCS2+oc/tajRFEl+dmai+HAOlvtO5I2m8jzVLbfmO20A==,fm2_lJPETrrgCptmETdwssh9VTDYP4N+zrScLOnyg6YvSB73L1NFmWi1Z27KIabgu4+sK352G7c7Ci7aoyDiuXnc3jANgAc/0ctCTnMyj/MImQSfrMQQ7xqOWeBuGyDjdwztW0vsssO5aHR0cHM6Ly9hcGkuZmx5LmlvL2FhYS92MZgEks5qjDj0zpAkPxIXzgAPxc8Kkc4AD8XPDMQQKFmyUpRYXgByH3WsU8OW9sQg7+3ah3w+ere7VA/t02UZ4uyyNY5pHyZLjuVXT9Kgbj4="
+token = "fm2_lJPECAAAAAAACLbexBAH7B8qiQv1Y4fz2UYgKpD1wrVodHRwczovL2FwaS5mbHkuaW8vdjGUAJLOABBoMh8Lk7lodHRwczovL2FwaS5mbHkuaW8vYWFhL3YxxDwNWeBQLKyQYi9JWjy/+1WCudvB7n9CNyaZ/kbkmvCB7Af5Lr6MVd/TQfuKhNs8YROyA3XFeISWsvMjcbHETvf6QsEV9B1Ao6uwhJ93chAxeTSb5/ygmKwP5xqvBeY0N6ICy1FIs+lTLDQVkuUjypIkWUdQ6vD9qEk1VjmbNW7E1YcEm85L5SC45dy7zMQgL3lBaoZyBfmGTvTs15IXNVCjtV8WXh+/l8tXsUeOvew=,fm2_lJPETvf6QsEV9B1Ao6uwhJ93chAxeTSb5/ygmKwP5xqvBeY0N6ICy1FIs+lTLDQVkuUjypIkWUdQ6vD9qEk1VjmbNW7E1YcEm85L5SC45dy7zMQQBEW38VgCj/M971XVA7+U8sO5aHR0cHM6Ly9hcGkuZmx5LmlvL2FhYS92MZYEks5qkxa5zmqTGS8XzgAPxc8Kkc4AD8XPxCDHD6mzdTP4fumLmx6xsKVD3jk+moNKJvn6s35iQb1r3A==,fo1_TYffCIoK0EjQ-5trTyzGyloQBRdOra_iCdTs6dMO1k4="
 
 # 1. Fetch current machine configuration
 print("1. Fetching current machine config...")
@@ -37,9 +37,10 @@ if not machine_data:
 # 2. Modify whitelist env vars
 env = machine_data["config"]["env"]
 env["_APP_CONSOLE_WHITELIST_ROOT"] = "disabled"
-env["_APP_CONSOLE_WHITELIST_EMAILS"] = "phoxmanglobal@gmail.com,admin.phoxtra@gmail.com,admin@phoxtra.com"
-env["_APP_CONSOLE_WHITELIST_DOMAINS"] = "gmail.com,phoxtra.com"
+env["_APP_CONSOLE_WHITELIST_EMAILS"] = ""
+env["_APP_CONSOLE_WHITELIST_DOMAINS"] = ""
 env["_APP_CONSOLE_WHITELIST_IPS"] = ""
+
 
 payload = json.dumps({"config": machine_data["config"]}).encode('utf-8')
 
