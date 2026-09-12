@@ -40,6 +40,18 @@ php app/worker.php migrations &
 php app/worker.php builds &
 php app/worker.php certificates &
 
+# Start Appwrite Executor process in background
+echo "[Phoxtra Engine] Starting Appwrite Executor process..."
+(
+    cd /usr/src/executor
+    export PORT=8082
+    export OPR_EXECUTOR_SECRET="${_APP_EXECUTOR_SECRET:-your-secret-key}"
+    export OPR_EXECUTOR_INACTIVE_TRESHOLD="${_APP_FUNCTIONS_INACTIVE_THRESHOLD:-60}"
+    export OPR_EXECUTOR_MAINTENANCE_INTERVAL="${_APP_FUNCTIONS_MAINTENANCE_INTERVAL:-3600}"
+    export OPR_EXECUTOR_NETWORK="host"
+    php app/http.php &
+)
+
 # Self-healing fix: Ensure Appwrite Console SPA assets are directly in /var/www/console/
 if [ -d "/var/www/console/console" ]; then
     echo "[Phoxtra Engine] Flattening nested Console SPA assets into /var/www/console..."
