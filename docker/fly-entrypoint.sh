@@ -35,10 +35,13 @@ php app/worker.php functions &
 php app/worker.php mails &
 php app/worker.php messaging &
 php app/worker.php webhooks &
-php app/worker.php statsUsage &
+php app/worker.php stats-usage &
+php app/worker.php stats-resources &
 php app/worker.php migrations &
 php app/worker.php builds &
 php app/worker.php certificates &
+php app/worker.php executions &
+php app/worker.php screenshots &
 
 # Start Appwrite Executor process in background
 echo "[Phoxtra Engine] Starting Appwrite Executor process..."

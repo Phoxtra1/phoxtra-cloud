@@ -51,10 +51,13 @@ services:
         php app/worker.php mails &
         php app/worker.php messaging &
         php app/worker.php webhooks &
-        php app/worker.php statsUsage &
+        php app/worker.php stats-usage &
+        php app/worker.php stats-resources &
         php app/worker.php migrations &
         php app/worker.php builds &
         php app/worker.php certificates &
+        php app/worker.php executions &
+        php app/worker.php screenshots &
         exec docker-php-entrypoint php app/http.php
     environment:
       - _APP_ENV=${_APP_ENV:-production}
