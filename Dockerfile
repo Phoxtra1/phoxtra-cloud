@@ -1,7 +1,5 @@
 # Production Dockerfile for Phoxtra Cloud Platform Engine (Unified Backend + Caddy + Console SPA)
 FROM appwrite/new:1.1.16 AS console_builder
-RUN find / -maxdepth 3 -name "*index.html*" 2>/dev/null || true
-RUN ls -la /usr/share/nginx 2>/dev/null || ls -la /app 2>/dev/null || ls -la /var/www 2>/dev/null || true
 
 FROM appwrite/appwrite:2.0.0
 
@@ -10,7 +8,7 @@ LABEL description="Phoxtra Cloud Self-Hosting Platform Engine"
 
 # Copy Appwrite Console SPA static files to /var/www/console
 RUN rm -rf /var/www/console/*
-COPY --from=console_builder /usr/share/nginx/html/console/ /var/www/console/
+COPY --from=console_builder /app/dist/ /var/www/console/
 
 # Install Redis server, Socat, and Caddy inside container for standalone execution
 RUN apk add --no-cache redis socat caddy
