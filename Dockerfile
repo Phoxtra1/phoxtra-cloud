@@ -1,7 +1,7 @@
 # Production Dockerfile for Phoxtra Cloud Platform Engine (Unified Backend + Caddy + Console SPA)
-FROM appwrite/console:latest AS console_builder
+FROM appwrite/new:1.1.16 AS console_builder
 
-FROM appwrite/appwrite:1.9.6
+FROM appwrite/appwrite:2.0.0
 
 LABEL maintainer="Phoxtra Infrastructure <phoxtra.am@gmail.com>"
 LABEL description="Phoxtra Cloud Self-Hosting Platform Engine"

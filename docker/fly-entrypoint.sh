@@ -27,19 +27,10 @@ echo "[Phoxtra Engine] Redis service is UP and running."
 echo "[Phoxtra Engine] Starting MariaDB proxy bridge..."
 socat TCP-LISTEN:3306,fork,reuseaddr TCP:phoxtra-db.internal:3306 &
 
-# Start Appwrite worker processes in background
-echo "[Phoxtra Engine] Starting Appwrite worker processes..."
-php app/worker.php audits &
-php app/worker.php databases &
-php app/worker.php deletes &
-php app/worker.php functions &
-php app/worker.php mails &
-php app/worker.php messaging &
-php app/worker.php webhooks &
-php app/worker.php statsUsage &
-php app/worker.php migrations &
-php app/worker.php builds &
-php app/worker.php certificates &
+# Start Appwrite 2.0 combined worker and schedule processes in background
+echo "[Phoxtra Engine] Starting Appwrite 2.0 combined worker processes..."
+php app/worker.php all &
+php app/schedule.php &
 
 # Self-healing fix: Ensure Appwrite Console SPA assets are directly in /var/www/console/
 if [ -d "/var/www/console/console" ]; then
