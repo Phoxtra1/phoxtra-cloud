@@ -1,5 +1,7 @@
 # Production Dockerfile for Phoxtra Cloud Platform Engine (Unified Backend + Caddy + Console SPA)
 FROM appwrite/new:1.1.16 AS console_builder
+RUN find / -maxdepth 3 -name "*index.html*" 2>/dev/null || true
+RUN ls -la /usr/share/nginx 2>/dev/null || ls -la /app 2>/dev/null || ls -la /var/www 2>/dev/null || true
 
 FROM appwrite/appwrite:2.0.0
 
