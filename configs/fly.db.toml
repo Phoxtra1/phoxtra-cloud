@@ -28,7 +28,3 @@ cmd = ["mariadbd", "--bind-address=0.0.0.0", "--character-set-server=utf8mb4", "
   memory = "1gb"
   cpu_kind = "shared"
   cpus = 1
-
-
-
-

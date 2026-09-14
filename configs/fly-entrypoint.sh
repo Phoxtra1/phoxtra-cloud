@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
 
-# Explicitly set whitelist environment defaults with fallback to runtime env
+# Explicitly force whitelist environment defaults
+export _APP_EXECUTOR_SECRET="${_APP_EXECUTOR_SECRET:-your-secret-key}"
 export _APP_EXECUTOR_HOST="${_APP_EXECUTOR_HOST:-http://127.0.0.1:8082/v1}"
 export _APP_CONNECTIONS_MAX="${_APP_CONNECTIONS_MAX:-1024}"
 export _APP_CONSOLE_WHITELIST_ROOT="${_APP_CONSOLE_WHITELIST_ROOT:-disabled}"
@@ -46,6 +47,18 @@ php app/worker.php certificates &
 php app/worker.php executions &
 php app/worker.php screenshots &
 
+# Start Appwrite Executor process in background
+echo "[Phoxtra Engine] Starting Appwrite Executor process..."
+(
+    cd /usr/src/executor
+    export PORT=8082
+    export OPR_EXECUTOR_SECRET="${_APP_EXECUTOR_SECRET:-your-secret-key}"
+    export OPR_EXECUTOR_INACTIVE_TRESHOLD="${_APP_FUNCTIONS_INACTIVE_THRESHOLD:-60}"
+    export OPR_EXECUTOR_MAINTENANCE_INTERVAL="${_APP_FUNCTIONS_MAINTENANCE_INTERVAL:-3600}"
+    export OPR_EXECUTOR_NETWORK="host"
+    php app/http.php &
+)
+
 # Self-healing fix: Ensure Appwrite Console SPA assets are directly in /var/www/console/
 if [ -d "/var/www/console/console" ]; then
     echo "[Phoxtra Engine] Flattening nested Console SPA assets into /var/www/console..."
@@ -54,7 +67,7 @@ if [ -d "/var/www/console/console" ]; then
 fi
 
 # Generate dynamic Caddyfile gateway configuration
-cat << 'EOF' > /etc/caddy/Caddyfile.fly
+cat << 'CADDYEOF' > /etc/caddy/Caddyfile.fly
 # Container Gateway Caddyfile for Phoxtra Cloud on Fly.io
 :80 {
     # Appwrite Backend API
@@ -82,8 +95,14 @@ cat << 'EOF' > /etc/caddy/Caddyfile.fly
         try_files {path} {path}/ /console/index.html
         file_server
     }
+
+    handle {
+        root * /var/www
+        try_files {path} {path}/ /console/index.html
+        file_server
+    }
 }
-EOF
+CADDYEOF
 
 # Start Caddy Gateway in background on port 80 (routes /v1 to Swoole on 8081, and / to Console static SPA)
 echo "[Phoxtra Engine] Starting internal Caddy Gateway on port 80..."

@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
 
-# Explicitly set whitelist environment defaults with fallback to runtime env
+# Explicitly force whitelist environment defaults
+export _APP_EXECUTOR_SECRET="${_APP_EXECUTOR_SECRET:-your-secret-key}"
 export _APP_EXECUTOR_HOST="${_APP_EXECUTOR_HOST:-http://127.0.0.1:8082/v1}"
 export _APP_CONNECTIONS_MAX="${_APP_CONNECTIONS_MAX:-1024}"
 export _APP_CONSOLE_WHITELIST_ROOT="${_APP_CONSOLE_WHITELIST_ROOT:-disabled}"

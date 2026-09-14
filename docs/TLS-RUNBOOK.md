@@ -92,4 +92,3 @@ curl.exe -k -I https://cloud.phoxtra.localhost
    ```bash
    caddy reload --config /etc/caddy/Caddyfile
    ```
-
