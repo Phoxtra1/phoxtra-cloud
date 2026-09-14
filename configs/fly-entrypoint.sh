@@ -2,6 +2,8 @@
 set -e
 
 # Explicitly set whitelist environment defaults with fallback to runtime env
+export _APP_EXECUTOR_HOST="${_APP_EXECUTOR_HOST:-http://127.0.0.1:8082/v1}"
+export _APP_CONNECTIONS_MAX="${_APP_CONNECTIONS_MAX:-1024}"
 export _APP_CONSOLE_WHITELIST_ROOT="${_APP_CONSOLE_WHITELIST_ROOT:-disabled}"
 export _APP_CONSOLE_WHITELIST_EMAILS="${_APP_CONSOLE_WHITELIST_EMAILS:-}"
 export _APP_CONSOLE_WHITELIST_DOMAINS="${_APP_CONSOLE_WHITELIST_DOMAINS:-}"
@@ -36,10 +38,13 @@ php app/worker.php functions &
 php app/worker.php mails &
 php app/worker.php messaging &
 php app/worker.php webhooks &
-php app/worker.php statsUsage &
+php app/worker.php stats-usage &
+php app/worker.php stats-resources &
 php app/worker.php migrations &
 php app/worker.php builds &
 php app/worker.php certificates &
+php app/worker.php executions &
+php app/worker.php screenshots &
 
 # Self-healing fix: Ensure Appwrite Console SPA assets are directly in /var/www/console/
 if [ -d "/var/www/console/console" ]; then

@@ -2,6 +2,8 @@
 set -e
 
 # Explicitly set whitelist environment defaults with fallback to runtime env
+export _APP_EXECUTOR_HOST="${_APP_EXECUTOR_HOST:-http://127.0.0.1:8082/v1}"
+export _APP_CONNECTIONS_MAX="${_APP_CONNECTIONS_MAX:-1024}"
 export _APP_CONSOLE_WHITELIST_ROOT="${_APP_CONSOLE_WHITELIST_ROOT:-disabled}"
 export _APP_CONSOLE_WHITELIST_EMAILS="${_APP_CONSOLE_WHITELIST_EMAILS:-}"
 export _APP_CONSOLE_WHITELIST_DOMAINS="${_APP_CONSOLE_WHITELIST_DOMAINS:-}"
@@ -32,6 +34,18 @@ echo "[Phoxtra Engine] Starting Appwrite 2.0 combined worker processes..."
 php app/worker.php all &
 php app/schedule.php &
 
+# Start Appwrite Executor process in background
+echo "[Phoxtra Engine] Starting Appwrite Executor process..."
+(
+    cd /usr/src/code/app/executor 2>/dev/null || cd /usr/src/executor 2>/dev/null || true
+    export PORT=8082
+    export OPR_EXECUTOR_SECRET="${_APP_EXECUTOR_SECRET:-your-secret-key}"
+    export OPR_EXECUTOR_INACTIVE_TRESHOLD="${_APP_FUNCTIONS_INACTIVE_THRESHOLD:-60}"
+    export OPR_EXECUTOR_MAINTENANCE_INTERVAL="${_APP_FUNCTIONS_MAINTENANCE_INTERVAL:-3600}"
+    export OPR_EXECUTOR_NETWORK="host"
+    php app/http.php &
+)
+
 # Self-healing fix: Ensure Appwrite Console SPA assets are directly in /var/www/console/
 if [ -d "/var/www/console/console" ]; then
     echo "[Phoxtra Engine] Flattening nested Console SPA assets into /var/www/console..."
@@ -40,7 +54,7 @@ if [ -d "/var/www/console/console" ]; then
 fi
 
 # Generate dynamic Caddyfile gateway configuration
-cat << 'EOF' > /etc/caddy/Caddyfile.fly
+cat << 'CADDYEOF' > /etc/caddy/Caddyfile.fly
 # Container Gateway Caddyfile for Phoxtra Cloud on Fly.io
 :80 {
     # Appwrite Backend API
@@ -75,7 +89,7 @@ cat << 'EOF' > /etc/caddy/Caddyfile.fly
         file_server
     }
 }
-EOF
+CADDYEOF
 
 # Start Caddy Gateway in background on port 80 (routes /v1 to Swoole on 8081, and / to Console static SPA)
 echo "[Phoxtra Engine] Starting internal Caddy Gateway on port 80..."

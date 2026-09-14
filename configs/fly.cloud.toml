@@ -38,11 +38,14 @@ _APP_DB_HOST = "phoxtra-db.internal"
 _APP_DB_PORT = "3306"
 _APP_DB_USER = "appwrite"
 _APP_DB_SCHEMA = "appwrite"
+_APP_CONNECTIONS_MAX = "1024"
+_APP_POOL_CLIENTS = "1"
 _APP_REDIS_HOST = "127.0.0.1"
 _APP_REDIS_PORT = "6379"
 _APP_REDIS_USER = ""
 _APP_REDIS_PASS = ""
 _APP_REDIS_AUTH = ""
+_APP_EXECUTOR_HOST = "http://127.0.0.1:8082/v1"
 
 [http_service]
 internal_port = 80
