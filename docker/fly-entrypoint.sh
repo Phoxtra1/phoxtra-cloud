@@ -3,7 +3,7 @@ set -e
 
 # Explicitly force whitelist environment defaults
 export _APP_EXECUTOR_SECRET="${_APP_EXECUTOR_SECRET:-your-secret-key}"
-export _APP_EXECUTOR_HOST="${_APP_EXECUTOR_HOST:-http://127.0.0.1:8082/v1}"
+export _APP_EXECUTOR_HOST="${_APP_EXECUTOR_HOST:-http://phoxtra-executor:8080/v1}"
 export _APP_CONNECTIONS_MAX="${_APP_CONNECTIONS_MAX:-1024}"
 export _APP_CONSOLE_WHITELIST_ROOT="${_APP_CONSOLE_WHITELIST_ROOT:-disabled}"
 export _APP_CONSOLE_WHITELIST_EMAILS="${_APP_CONSOLE_WHITELIST_EMAILS:-}"
@@ -39,7 +39,7 @@ php app/schedule.php &
 echo "[Phoxtra Engine] Starting Appwrite Executor process..."
 (
     cd /usr/src/code/app/executor 2>/dev/null || cd /usr/src/executor 2>/dev/null || true
-    export PORT=8082
+    export PORT=8080
     export OPR_EXECUTOR_SECRET="${_APP_EXECUTOR_SECRET:-your-secret-key}"
     export OPR_EXECUTOR_INACTIVE_TRESHOLD="${_APP_FUNCTIONS_INACTIVE_THRESHOLD:-60}"
     export OPR_EXECUTOR_MAINTENANCE_INTERVAL="${_APP_FUNCTIONS_MAINTENANCE_INTERVAL:-3600}"

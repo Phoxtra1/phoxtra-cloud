@@ -45,7 +45,7 @@ _APP_REDIS_PORT = "6379"
 _APP_REDIS_USER = ""
 _APP_REDIS_PASS = ""
 _APP_REDIS_AUTH = ""
-_APP_EXECUTOR_HOST = "http://127.0.0.1:8082/v1"
+_APP_EXECUTOR_HOST = "http://phoxtra-executor:8080/v1"
 _APP_EXECUTOR_SECRET = "change_me_app_secret"
 
 [http_service]
