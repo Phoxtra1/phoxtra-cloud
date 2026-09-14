@@ -7,7 +7,7 @@ primary_region = "ams"
 [build]
   image = "mariadb:10.11"
 
-cmd = ["mariadbd", "--bind-address=::", "--max_connections=1024"]
+cmd = ["mariadbd", "--bind-address=0.0.0.0", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_general_ci", "--max-allowed-packet=64M", "--innodb-buffer-pool-size=512M", "--max-connections=1024", "--innodb-log-file-size=64M"]
 
 [env]
   MYSQL_DATABASE = "appwrite"
@@ -21,6 +21,10 @@ cmd = ["mariadbd", "--bind-address=::", "--max_connections=1024"]
   protocol = "tcp"
   internal_port = 3306
 
-  [[services.ports]]
+[[services.ports]]
     port = 3306
 
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1

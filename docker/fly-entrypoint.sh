@@ -5,10 +5,11 @@ set -e
 export _APP_EXECUTOR_SECRET="${_APP_EXECUTOR_SECRET:-your-secret-key}"
 export _APP_EXECUTOR_HOST="${_APP_EXECUTOR_HOST:-http://127.0.0.1:8082/v1}"
 export _APP_CONNECTIONS_MAX="${_APP_CONNECTIONS_MAX:-1024}"
-export _APP_CONSOLE_WHITELIST_ROOT="disabled"
-export _APP_CONSOLE_WHITELIST_EMAILS=""
-export _APP_CONSOLE_WHITELIST_DOMAINS=""
-export _APP_CONSOLE_WHITELIST_IPS=""
+export _APP_CONSOLE_WHITELIST_ROOT="${_APP_CONSOLE_WHITELIST_ROOT:-disabled}"
+export _APP_CONSOLE_WHITELIST_EMAILS="${_APP_CONSOLE_WHITELIST_EMAILS:-}"
+export _APP_CONSOLE_WHITELIST_DOMAINS="${_APP_CONSOLE_WHITELIST_DOMAINS:-}"
+export _APP_CONSOLE_WHITELIST_IPS="${_APP_CONSOLE_WHITELIST_IPS:-}"
+export _APP_STORAGE_LIMIT="${_APP_STORAGE_LIMIT:-1073741824}"
 
 # Start internal Redis service in background with optional authentication
 echo "[Phoxtra Engine] Starting internal Redis service..."
@@ -25,31 +26,19 @@ until ([ -n "$_APP_REDIS_PASS" ] && redis-cli -a "$_APP_REDIS_PASS" ping > /dev/
 done
 echo "[Phoxtra Engine] Redis service is UP and running."
 
-# Start MariaDB IPv6 bridge via socat (bridges 127.0.0.1:3306 -> MariaDB 6PN)
-echo "[Phoxtra Engine] Starting MariaDB IPv6 proxy bridge..."
-socat TCP-LISTEN:3306,fork,reuseaddr TCP:[fdaa:18:121c:a7b:c8:8595:21d1:2]:3306 &
+# Start MariaDB proxy bridge via socat (bridges 127.0.0.1:3306 -> phoxtra-db.internal:3306)
+echo "[Phoxtra Engine] Starting MariaDB proxy bridge..."
+socat TCP-LISTEN:3306,fork,reuseaddr TCP:phoxtra-db.internal:3306 &
 
-# Start Appwrite worker processes in background
-echo "[Phoxtra Engine] Starting Appwrite worker processes..."
-php app/worker.php audits &
-php app/worker.php databases &
-php app/worker.php deletes &
-php app/worker.php functions &
-php app/worker.php mails &
-php app/worker.php messaging &
-php app/worker.php webhooks &
-php app/worker.php stats-usage &
-php app/worker.php stats-resources &
-php app/worker.php migrations &
-php app/worker.php builds &
-php app/worker.php certificates &
-php app/worker.php executions &
-php app/worker.php screenshots &
+# Start Appwrite 2.0 combined worker and schedule processes in background
+echo "[Phoxtra Engine] Starting Appwrite 2.0 combined worker processes..."
+php app/worker.php all &
+php app/schedule.php &
 
 # Start Appwrite Executor process in background
 echo "[Phoxtra Engine] Starting Appwrite Executor process..."
 (
-    cd /usr/src/executor
+    cd /usr/src/code/app/executor 2>/dev/null || cd /usr/src/executor 2>/dev/null || true
     export PORT=8082
     export OPR_EXECUTOR_SECRET="${_APP_EXECUTOR_SECRET:-your-secret-key}"
     export OPR_EXECUTOR_INACTIVE_TRESHOLD="${_APP_FUNCTIONS_INACTIVE_THRESHOLD:-60}"
