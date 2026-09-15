@@ -40,10 +40,11 @@ env["_APP_CONSOLE_WHITELIST_ROOT"] = "disabled"
 env["_APP_CONSOLE_WHITELIST_EMAILS"] = ""
 env["_APP_CONSOLE_WHITELIST_DOMAINS"] = ""
 env["_APP_CONSOLE_WHITELIST_IPS"] = ""
-env["_APP_CONSOLE_HOSTNAMES"] = "cloud.phoxtra.com,cloud.phoxtra.localhost,localhost,127.0.0.1,phoxtra-cloud.fly.dev,*.fly.dev,*.phoxtra.com"
-env["_APP_DOMAIN_CONSOLE"] = ""
-env["_APP_DOMAIN_API"] = ""
-env["_APP_OPTIONS_ROUTER_PROTECTION"] = "disabled"
+env["_APP_CONSOLE_HOSTNAMES"] = "cloud.phoxtra.com"
+env["_APP_DOMAIN_CONSOLE"] = "cloud.phoxtra.com"
+env["_APP_DOMAIN_API"] = "cloud.phoxtra.com"
+if "_APP_OPTIONS_ROUTER_PROTECTION" in env:
+    del env["_APP_OPTIONS_ROUTER_PROTECTION"]
 
 payload = json.dumps({"config": machine_data["config"]}).encode('utf-8')
 
