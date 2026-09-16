@@ -1,6 +1,6 @@
 # Production Dockerfile for Phoxtra Cloud Platform Engine (Unified Backend + Caddy + Console SPA)
 FROM appwrite/console:latest AS console_builder
-FROM openruntimes/executor:0.4.5 AS executor_builder
+FROM openruntimes/executor:0.25.4 AS executor_builder
 
 FROM appwrite/appwrite:1.9.6
 
@@ -12,7 +12,7 @@ RUN rm -rf /var/www/console/*
 COPY --from=console_builder /usr/share/nginx/html/ /var/www/console/
 
 # Install Redis server, Socat, and Caddy inside container for standalone execution
-RUN apk add --no-cache redis socat caddy
+RUN apk add --no-cache redis socat caddy docker
 
 # Copy Executor code
 COPY --from=executor_builder /usr/local/src/ /usr/src/executor/
