@@ -106,7 +106,7 @@ CADDYEOF
 
 # Start Caddy Gateway in background on port 80 (routes /v1 to Swoole on 8081, and / to Console static SPA)
 echo "[Phoxtra Engine] Starting internal Caddy Gateway on port 80..."
-caddy start --config /etc/caddy/Caddyfile.fly
+caddy run --config /etc/caddy/Caddyfile.fly &
 
 # Export PORT 8081 for Appwrite Swoole PHP HTTP Server
 export PORT=8081
