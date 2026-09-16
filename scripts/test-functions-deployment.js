@@ -86,7 +86,7 @@ async function testFunctions() {
         body: JSON.stringify({
             functionId: funcId,
             name: 'Test Node Function',
-            runtime: 'node-18.0',
+            runtime: 'node-20.0',
             execute: ['any'],
             events: [],
             schedule: '',
