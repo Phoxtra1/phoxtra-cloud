@@ -48,6 +48,19 @@ php app/worker.php executions &
 php app/worker.php screenshots &
 
 # Start Appwrite Executor process in background
+
+# Start internal Docker daemon (DIND)
+echo "[Phoxtra Engine] Starting internal Docker daemon (DIND)..."
+dockerd --host=unix:///var/run/docker.sock > /var/log/dockerd.log 2>&1 &
+until docker info > /dev/null 2>&1; do
+    echo "[Phoxtra Engine] Waiting for Docker daemon..."
+    sleep 1
+done
+echo "[Phoxtra Engine] Docker daemon is UP."
+
+echo "[Phoxtra Engine] Creating appwrite_runtimes network..."
+docker network inspect appwrite_runtimes >/dev/null 2>&1 || docker network create appwrite_runtimes
+
 echo "[Phoxtra Engine] Starting Appwrite Executor process..."
 (
     cd /usr/src/executor
@@ -55,7 +68,7 @@ echo "[Phoxtra Engine] Starting Appwrite Executor process..."
     export OPR_EXECUTOR_SECRET="${_APP_EXECUTOR_SECRET:-your-secret-key}"
     export OPR_EXECUTOR_INACTIVE_TRESHOLD="${_APP_FUNCTIONS_INACTIVE_THRESHOLD:-60}"
     export OPR_EXECUTOR_MAINTENANCE_INTERVAL="${_APP_FUNCTIONS_MAINTENANCE_INTERVAL:-3600}"
-    export OPR_EXECUTOR_NETWORK="host"
+    export OPR_EXECUTOR_NETWORK="appwrite_runtimes"
     php app/http.php &
 )
 
@@ -106,7 +119,7 @@ CADDYEOF
 
 # Start Caddy Gateway in background on port 80 (routes /v1 to Swoole on 8081, and / to Console static SPA)
 echo "[Phoxtra Engine] Starting internal Caddy Gateway on port 80..."
-caddy start --config /etc/caddy/Caddyfile.fly
+caddy run --config /etc/caddy/Caddyfile.fly &
 
 # Export PORT 8081 for Appwrite Swoole PHP HTTP Server
 export PORT=8081
