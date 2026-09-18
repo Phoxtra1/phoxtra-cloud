@@ -24,4 +24,4 @@ RUN sed -i 's/\r$//' /usr/local/bin/fly-entrypoint.sh \
     && chmod +x /usr/local/bin/fly-entrypoint.sh
 
 EXPOSE 80
-ENTRYPOINT ["/usr/local/bin/fly-entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/usr/local/bin/fly-entrypoint.sh"]
