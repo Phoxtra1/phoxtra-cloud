@@ -26,11 +26,14 @@ services:
       retries: 3
 
   phoxtra-console:
-    image: appwrite/console:latest
+    image: appwrite/console:1.9.6
     container_name: phoxtra-cloud-console
     restart: unless-stopped
     env_file:
       - ../.env
+    volumes:
+      - ../configs/console_patches/15.B-Fb61Zs.js:/usr/share/nginx/html/console/_app/immutable/nodes/15.B-Fb61Zs.js:ro
+      - ../configs/console_patches/16.EOOQP6m6.js:/usr/share/nginx/html/console/_app/immutable/nodes/16.EOOQP6m6.js:ro
     networks:
       - phoxtra-net
 
@@ -122,7 +125,6 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-appwrite}
       MYSQL_USER: ${MYSQL_USER:-appwrite}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-c5dde33a93bae60b4f72728f30e133ef03c2012cc1b70095}
-    command: ['mysqld', '--max_connections=${_APP_CONNECTIONS_MAX:-1024}']
     volumes:
       - mariadb-data:/var/lib/mysql
     networks:
