@@ -22,18 +22,15 @@
     # Appwrite Console SPA & Static Assets Fallback
     handle /console* {
         root * /var/www
+        header Cache-Control "no-cache, no-store, must-revalidate"
         try_files {path} {path}/ /console/index.html
         file_server
     }
 
     handle {
         root * /var/www
+        header Cache-Control "no-cache, no-store, must-revalidate"
         try_files {path} {path}/ /console/index.html
         file_server
     }
 }
-
-
-
-
-

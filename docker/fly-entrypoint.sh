@@ -1,76 +1,60 @@
 #!/bin/sh
-set -e
+set -eu
 
-# Explicitly force whitelist environment defaults
-export _APP_EXECUTOR_SECRET="${_APP_EXECUTOR_SECRET:-your-secret-key}"
-export _APP_EXECUTOR_HOST="${_APP_EXECUTOR_HOST:-http://127.0.0.1:8082/v1}"
 export _APP_CONNECTIONS_MAX="${_APP_CONNECTIONS_MAX:-1024}"
 export _APP_CONSOLE_WHITELIST_ROOT="${_APP_CONSOLE_WHITELIST_ROOT:-disabled}"
-export _APP_CONSOLE_WHITELIST_EMAILS="${_APP_CONSOLE_WHITELIST_EMAILS:-}"
-export _APP_CONSOLE_WHITELIST_DOMAINS="${_APP_CONSOLE_WHITELIST_DOMAINS:-}"
-export _APP_CONSOLE_WHITELIST_IPS="${_APP_CONSOLE_WHITELIST_IPS:-}"
 export _APP_STORAGE_LIMIT="${_APP_STORAGE_LIMIT:-1073741824}"
+export _APP_EXECUTOR_LOCAL="${_APP_EXECUTOR_LOCAL:-false}"
 
-# Start internal Redis service in background with optional authentication
-echo "[Phoxtra Engine] Starting internal Redis service..."
-if [ -n "$_APP_REDIS_PASS" ]; then
-    redis-server --protected-mode no --requirepass "$_APP_REDIS_PASS" --daemonize yes
+echo "[Phoxtra Engine] Starting Redis..."
+if [ -n "${_APP_REDIS_PASS:-}" ]; then
+    redis-server \
+        --protected-mode no \
+        --requirepass "$_APP_REDIS_PASS" \
+        --daemonize yes
 else
-    redis-server --protected-mode no --daemonize yes
+    redis-server \
+        --protected-mode no \
+        --daemonize yes
 fi
 
-# Wait for Redis to respond to PING
-until ([ -n "$_APP_REDIS_PASS" ] && redis-cli -a "$_APP_REDIS_PASS" ping > /dev/null 2>&1) || redis-cli ping > /dev/null 2>&1; do
-    echo "[Phoxtra Engine] Waiting for Redis service..."
+echo "[Phoxtra Engine] Waiting for Redis..."
+while :; do
+    if [ -n "${_APP_REDIS_PASS:-}" ]; then
+        redis-cli -a "$_APP_REDIS_PASS" ping >/dev/null 2>&1 && break
+    else
+        redis-cli ping >/dev/null 2>&1 && break
+    fi
     sleep 1
 done
-echo "[Phoxtra Engine] Redis service is UP and running."
+
+echo "[Phoxtra Engine] Starting Appwrite workers..."
+for worker in \
+    audits \
+    databases \
+    deletes \
+    functions \
+    mails \
+    messaging \
+    webhooks \
+    stats-usage \
+    stats-resources \
+    migrations \
+    builds \
+    certificates \
+    executions \
+    screenshots
+do
+    php app/worker.php "$worker" &
+done
 
 # Start MariaDB proxy bridge via socat (bridges 127.0.0.1:3306 -> phoxtra-db.internal:3306)
 echo "[Phoxtra Engine] Starting MariaDB proxy bridge..."
 socat TCP-LISTEN:3306,fork,reuseaddr TCP:phoxtra-db.internal:3306 &
 
-# Start Appwrite worker processes in background
-echo "[Phoxtra Engine] Starting Appwrite worker processes..."
-php app/worker.php audits &
-php app/worker.php databases &
-php app/worker.php deletes &
-php app/worker.php functions &
-php app/worker.php mails &
-php app/worker.php messaging &
-php app/worker.php webhooks &
-php app/worker.php stats-usage &
-php app/worker.php stats-resources &
-php app/worker.php migrations &
-php app/worker.php builds &
-php app/worker.php certificates &
-php app/worker.php executions &
-php app/worker.php screenshots &
-
-# Start Appwrite Executor process in background
-
-# Start internal Docker daemon (DIND)
-echo "[Phoxtra Engine] Starting internal Docker daemon (DIND)..."
-dockerd --host=unix:///var/run/docker.sock > /var/log/dockerd.log 2>&1 &
-until docker info > /dev/null 2>&1; do
-    echo "[Phoxtra Engine] Waiting for Docker daemon..."
-    sleep 1
-done
-echo "[Phoxtra Engine] Docker daemon is UP."
-
-echo "[Phoxtra Engine] Creating appwrite_runtimes network..."
-docker network inspect appwrite_runtimes >/dev/null 2>&1 || docker network create appwrite_runtimes
-
-echo "[Phoxtra Engine] Starting Appwrite Executor process..."
-(
-    cd /usr/src/executor
-    export PORT=8082
-    export OPR_EXECUTOR_SECRET="${_APP_EXECUTOR_SECRET:-your-secret-key}"
-    export OPR_EXECUTOR_INACTIVE_TRESHOLD="${_APP_FUNCTIONS_INACTIVE_THRESHOLD:-60}"
-    export OPR_EXECUTOR_MAINTENANCE_INTERVAL="${_APP_FUNCTIONS_MAINTENANCE_INTERVAL:-3600}"
-    export OPR_EXECUTOR_NETWORK="appwrite_runtimes"
-    php app/http.php &
-)
+# Start local executor service on 127.0.0.1:8080
+echo "[Phoxtra Engine] Starting Appwrite local executor daemon on port 8080..."
+php -S 127.0.0.1:8080 /usr/local/bin/executor_router.php >/var/log/executor.log 2>&1 &
 
 # Self-healing fix: Ensure Appwrite Console SPA assets are directly in /var/www/console/
 if [ -d "/var/www/console/console" ]; then
@@ -79,56 +63,34 @@ if [ -d "/var/www/console/console" ]; then
     rm -rf /var/www/console/console
 fi
 
-# Generate dynamic Caddyfile gateway configuration
-cat << 'CADDYEOF' > /etc/caddy/Caddyfile.fly
-# Container Gateway Caddyfile for Phoxtra Cloud on Fly.io
-:80 {
-    # Appwrite Backend API
-    handle /v1* {
-        reverse_proxy 127.0.0.1:8081 {
-            header_up Host {host}
-            header_up X-Forwarded-Host {host}
-            header_up X-Forwarded-Proto https
-        }
-    }
+# Disable service worker registration inside index.html to prevent client route trapping
+if [ -f "/var/www/console/index.html" ]; then
+    sed -i "s/navigator.serviceWorker.register(sanitised);/if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}/g" /var/www/console/index.html
+fi
 
-    # Appwrite Console Root and Route Redirects
-    @root path /
-    redir @root /console/ 302
+# Ensure service worker file self-unregisters and remove pre-compressed Brotli/Gzip copies
+rm -f /var/www/console/service-worker.js*
+cat << 'EOF' > /var/www/console/service-worker.js
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => {
+    e.waitUntil(
+        caches.keys()
+            .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+            .then(() => self.registration.unregister())
+            .then(() => self.clients.claim())
+    );
+});
+self.addEventListener('fetch', (e) => {
+    e.respondWith(fetch(e.request));
+});
+EOF
 
-    @console path /console
-    redir @console /console/ 301
+echo "[Phoxtra Engine] Starting Caddy on port 80..."
+caddy start \
+    --config /etc/caddy/Caddyfile.fly \
+    --adapter caddyfile
 
-    @login path /login /register
-    redir @login /console{path} 301
-
-    # Appwrite Console SPA Gateway
-    handle /console* {
-        root * /var/www
-        try_files {path} {path}/ /console/index.html
-        file_server
-    }
-
-    handle {
-        root * /var/www
-        try_files {path} {path}/ /console/index.html
-        file_server
-    }
-}
-CADDYEOF
-
-# Start Caddy Gateway in background on port 80 (routes /v1 to Swoole on 8081, and / to Console static SPA)
-echo "[Phoxtra Engine] Starting internal Caddy Gateway on port 80..."
-caddy run --config /etc/caddy/Caddyfile.fly &
-
-# Export PORT 8081 for Appwrite Swoole PHP HTTP Server
 export PORT=8081
 
-# Log Database connection configuration for verification
-echo "[Phoxtra Engine] DB Host: '${_APP_DB_HOST}'"
-echo "[Phoxtra Engine] DB Port: '${_APP_DB_PORT}'"
-echo "[Phoxtra Engine] DB User: '${_APP_DB_USER}'"
-echo "[Phoxtra Engine] DB Schema: '${_APP_DB_SCHEMA}'"
-
-# Execute standard Appwrite HTTP server entrypoint on port 8081
+echo "[Phoxtra Engine] Starting Appwrite HTTP server on port 8081..."
 exec docker-php-entrypoint php app/http.php

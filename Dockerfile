@@ -1,28 +1,23 @@
-# Production Dockerfile for Phoxtra Cloud Platform Engine (Unified Backend + Caddy + Console SPA)
-FROM appwrite/console:latest AS console_builder
-FROM openruntimes/executor:0.25.4 AS executor_builder
-
+# Production Dockerfile for Phoxtra Cloud (Appwrite 1.9.6 + Console + Caddy)
+FROM appwrite/console:1.9.6 AS console_builder
 FROM appwrite/appwrite:1.9.6
 
 LABEL maintainer="Phoxtra Infrastructure <phoxtra.am@gmail.com>"
-LABEL description="Phoxtra Cloud Self-Hosting Platform Engine"
+LABEL description="Phoxtra Cloud Appwrite gateway"
 
-# Copy Appwrite Console SPA static files to /var/www/console
-RUN rm -rf /var/www/console/*
+# Copy Appwrite Console assets into web directory
+RUN mkdir -p /var/www/console
 COPY --from=console_builder /usr/share/nginx/html/ /var/www/console/
+RUN if [ -d "/var/www/console/console" ]; then cp -rf /var/www/console/console/* /var/www/console/ && rm -rf /var/www/console/console; fi
 
 # Install Redis server, Socat, and Caddy inside container for standalone execution
-RUN apk add --no-cache redis socat caddy docker
+RUN apk add --no-cache redis socat caddy
 
-# Copy Executor code
-COPY --from=executor_builder /usr/local/src/ /usr/src/executor/
-
-# Copy Caddy gateway configuration and Fly entrypoint script
 COPY configs/Caddyfile.fly /etc/caddy/Caddyfile.fly
-COPY configs/fly-entrypoint.sh /usr/local/bin/fly-entrypoint.sh
-RUN sed -i 's/\r$//' /usr/local/bin/fly-entrypoint.sh && chmod +x /usr/local/bin/fly-entrypoint.sh && test -f /usr/local/bin/fly-entrypoint.sh
+COPY scripts/executor_router.php /usr/local/bin/executor_router.php
+COPY docker/fly-entrypoint.sh /usr/local/bin/fly-entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/fly-entrypoint.sh \
+    && chmod +x /usr/local/bin/fly-entrypoint.sh
 
-# Expose HTTP and HTTPS services
-EXPOSE 80 443
-
-ENTRYPOINT ["/usr/local/bin/fly-entrypoint.sh"]
+EXPOSE 80
+ENTRYPOINT ["/bin/sh", "/usr/local/bin/fly-entrypoint.sh"]
