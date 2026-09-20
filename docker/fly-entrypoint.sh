@@ -63,6 +63,17 @@ if [ -d "/var/www/console/console" ]; then
     rm -rf /var/www/console/console
 fi
 
+# Apply Console SPA patch nodes if present in repo/container
+if [ -d "/var/www/console/_app/immutable/nodes" ]; then
+    echo "[Phoxtra Engine] Applying Console SPA patch nodes..."
+    if [ -f "configs/console_patches/15.B-Fb61Zs.js" ]; then
+        cp -f configs/console_patches/15.B-Fb61Zs.js /var/www/console/_app/immutable/nodes/15.B-Fb61Zs.js
+    fi
+    if [ -f "configs/console_patches/16.EOOQP6m6.js" ]; then
+        cp -f configs/console_patches/16.EOOQP6m6.js /var/www/console/_app/immutable/nodes/16.EOOQP6m6.js
+    fi
+fi
+
 # Disable service worker registration inside index.html to prevent client route trapping
 if [ -f "/var/www/console/index.html" ]; then
     sed -i "s/navigator.serviceWorker.register(sanitised);/if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}/g" /var/www/console/index.html

@@ -1,5 +1,5 @@
 # Production Dockerfile for Phoxtra Cloud (Appwrite 1.9.6 + Console + Caddy)
-FROM appwrite/console:1.9.6 AS console_builder
+FROM appwrite/console:latest AS console_builder
 FROM appwrite/appwrite:1.9.6
 
 LABEL maintainer="Phoxtra Infrastructure <phoxtra.am@gmail.com>"
@@ -9,6 +9,9 @@ LABEL description="Phoxtra Cloud Appwrite gateway"
 RUN mkdir -p /var/www/console
 COPY --from=console_builder /usr/share/nginx/html/ /var/www/console/
 RUN if [ -d "/var/www/console/console" ]; then cp -rf /var/www/console/console/* /var/www/console/ && rm -rf /var/www/console/console; fi
+
+# Copy patched Console SPA node files
+COPY configs/console_patches/ /var/www/console/_app/immutable/nodes/
 
 # Install Redis server, Socat, and Caddy inside container for standalone execution
 RUN apk add --no-cache redis socat caddy
