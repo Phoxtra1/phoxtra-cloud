@@ -10,6 +10,10 @@ export _APP_CONSOLE_WHITELIST_EMAILS="${_APP_CONSOLE_WHITELIST_EMAILS:-}"
 export _APP_CONSOLE_WHITELIST_DOMAINS="${_APP_CONSOLE_WHITELIST_DOMAINS:-}"
 export _APP_CONSOLE_WHITELIST_IPS="${_APP_CONSOLE_WHITELIST_IPS:-}"
 export _APP_STORAGE_LIMIT="${_APP_STORAGE_LIMIT:-1073741824}"
+export _APP_CONSOLE_MODE="${_APP_CONSOLE_MODE:-self-hosted}"
+export PUBLIC_CONSOLE_MODE="${PUBLIC_CONSOLE_MODE:-self-hosted}"
+export _APP_CONSOLE_FEATURE_FLAGS="${_APP_CONSOLE_FEATURE_FLAGS:-apps,sites,explorer,terminal,mcp,databases-v2}"
+export PUBLIC_CONSOLE_FEATURE_FLAGS="${PUBLIC_CONSOLE_FEATURE_FLAGS:-apps,sites,explorer,terminal,mcp,databases-v2}"
 
 # Start internal Redis service in background with optional authentication
 echo "[Phoxtra Engine] Starting internal Redis service..."
