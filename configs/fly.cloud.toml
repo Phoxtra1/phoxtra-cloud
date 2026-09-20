@@ -28,10 +28,11 @@ _APP_REDIS_PORT = "6379"
 _APP_REDIS_USER = ""
 _APP_REDIS_PASS = ""
 _APP_REDIS_AUTH = ""
-# Set _APP_EXECUTOR_HOST and _APP_EXECUTOR_SECRET with `fly secrets set`.
-# The old 127.0.0.1:8082 value is intentionally not used: Fly does not
-# provide a privileged Docker daemon for a nested executor.
-_APP_EXECUTOR_LOCAL = "false"
+_APP_EXECUTOR_HOST = "http://127.0.0.1:8082/v1"
+_APP_EXECUTOR_SECRET = "your-secret-key"
+_APP_FUNCTIONS_RUNTIMES = "node-16.0,node-18.0,node-20.0,python-3.9,python-3.10,python-3.11,php-8.0,php-8.1,php-8.2,deno-1.40,dart-3.0,bun-1.0"
+_APP_FUNCTIONS_BUILD_TIMEOUT = "900"
+_APP_EXECUTOR_LOCAL = "true"
 
 [http_service]
   internal_port = 80
