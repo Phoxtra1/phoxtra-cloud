@@ -72,6 +72,9 @@ if [ -d "/var/www/console/_app/immutable/nodes" ]; then
     if [ -f "configs/console_patches/16.EOOQP6m6.js" ]; then
         cp -f configs/console_patches/16.EOOQP6m6.js /var/www/console/_app/immutable/nodes/16.EOOQP6m6.js
     fi
+    if [ -f "configs/console_patches/79.BlE-PYAV.js" ]; then
+        cp -f configs/console_patches/79.BlE-PYAV.js /var/www/console/_app/immutable/nodes/79.BlE-PYAV.js
+    fi
 fi
 
 # Disable service worker registration inside index.html to prevent client route trapping
