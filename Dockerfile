@@ -12,6 +12,7 @@ RUN if [ -d "/var/www/console/console" ]; then cp -rf /var/www/console/console/*
 
 # Copy patched Console SPA node files
 COPY configs/console_patches/ /var/www/console/_app/immutable/nodes/
+RUN grep -rl "https://appwrite.io/images/logos/logo.svg" /var/www/console/ 2>/dev/null | xargs -r sed -i 's|https://appwrite.io/images/logos/logo.svg|/console/images/onboarding/appwrite.svg|g' || true
 
 # Install Redis server, Socat, and Caddy inside container for standalone execution
 RUN apk add --no-cache redis socat caddy
