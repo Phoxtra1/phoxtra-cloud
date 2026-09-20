@@ -34,6 +34,7 @@ services:
     volumes:
       - ../configs/console_patches/15.B-Fb61Zs.js:/usr/share/nginx/html/console/_app/immutable/nodes/15.B-Fb61Zs.js:ro
       - ../configs/console_patches/16.EOOQP6m6.js:/usr/share/nginx/html/console/_app/immutable/nodes/16.EOOQP6m6.js:ro
+      - ../configs/console_patches/79.BlE-PYAV.js:/usr/share/nginx/html/console/_app/immutable/nodes/79.BlE-PYAV.js:ro
     networks:
       - phoxtra-net
 
