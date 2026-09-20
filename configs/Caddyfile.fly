@@ -19,6 +19,13 @@
     @login path /login /register
     redir @login /console{path} 301
 
+    # Fallback for Appwrite Logo SVG requests
+    handle /images/logos/logo.svg {
+        rewrite * /console/images/onboarding/appwrite.svg
+        root * /var/www
+        file_server
+    }
+
     # Appwrite Console SPA & Static Assets Fallback
     handle /console* {
         root * /var/www

@@ -77,6 +77,10 @@ if [ -d "/var/www/console/_app/immutable/nodes" ]; then
     fi
 fi
 
+# Replace broken external Appwrite logo URLs with local onboarding SVG logo asset
+echo "[Phoxtra Engine] Patching external Appwrite logo URLs to self-hosted SVG assets..."
+grep -rl "https://appwrite.io/images/logos/logo.svg" /var/www/console/ 2>/dev/null | xargs -r sed -i 's|https://appwrite.io/images/logos/logo.svg|/console/images/onboarding/appwrite.svg|g' || true
+
 # Disable service worker registration inside index.html to prevent client route trapping
 if [ -f "/var/www/console/index.html" ]; then
     sed -i "s/navigator.serviceWorker.register(sanitised);/if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister()));}/g" /var/www/console/index.html

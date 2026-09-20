@@ -79,6 +79,9 @@ if [ -d "/var/www/console/console" ]; then
     rm -rf /var/www/console/console
 fi
 
+echo "[Phoxtra Engine] Patching external Appwrite logo URLs to self-hosted SVG assets..."
+grep -rl "https://appwrite.io/images/logos/logo.svg" /var/www/console/ 2>/dev/null | xargs -r sed -i 's|https://appwrite.io/images/logos/logo.svg|/console/images/onboarding/appwrite.svg|g' || true
+
 # Generate dynamic Caddyfile gateway configuration
 cat << 'CADDYEOF' > /etc/caddy/Caddyfile.fly
 # Container Gateway Caddyfile for Phoxtra Cloud on Fly.io
@@ -101,6 +104,13 @@ cat << 'CADDYEOF' > /etc/caddy/Caddyfile.fly
 
     @login path /login /register
     redir @login /console{path} 301
+
+    # Fallback for external Appwrite logo requests
+    handle /images/logos/logo.svg {
+        rewrite * /console/images/onboarding/appwrite.svg
+        root * /var/www
+        file_server
+    }
 
     # Appwrite Console SPA Gateway
     handle /console* {
