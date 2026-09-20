@@ -17,7 +17,7 @@
 - **Gateway & Proxy Specs**:
   - `configs/Caddyfile`: Reverse proxy configuration handling local internal TLS (`cloud.phoxtra.localhost` / `localhost`) and production ACME blueprint (`cloud.phoxtra.com`).
 - **Docker Blueprints**:
-  - `Dockerfile`: Multi-stage Dockerfile for Phoxtra Cloud platform engine (`appwrite/appwrite:1.9.6` + `appwrite/console:1.9.6`).
+  - `Dockerfile`: Multi-stage Dockerfile for Phoxtra Cloud platform engine (`appwrite/appwrite:1.9.6` + `appwrite/console:latest`).
   - `docker/docker-compose.yml`: Production multi-container composition specifying `phoxtra-cloud-gateway`, `phoxtra-cloud-appwrite`, `phoxtra-cloud-mariadb`, and `phoxtra-cloud-redis` with persistent volumes, network isolation, and healthchecks.
 - **Fly.io Deployment Specs**:
   - `configs/fly.cloud.toml`: Production Fly.io deployment manifest for `phoxtra-cloud` app.
@@ -64,7 +64,7 @@ Discovered directly via Fly.io CLI (`flyctl`) from active user account (`phoxtra
   - Ports bound to host: `80:80` (HTTP) and `443:443` (HTTPS).
   - Serves as the sole public ingress point.
 - **Appwrite Core Service**: `phoxtra-cloud-appwrite` (`appwrite/appwrite:1.9.6`)
-- **Console Service**: `phoxtra-cloud-console` (`appwrite/console:1.9.6`)
+- **Console Service**: `phoxtra-cloud-console` (`appwrite/console:latest` patched)
   - Internal port 80 on `phoxtra-net`. Zero host ports bound.
 - **Database Service**: `phoxtra-cloud-mariadb` (`mariadb:10.11`)
   - Internal port 3306 on `phoxtra-net`. Zero host ports bound.

@@ -26,7 +26,7 @@ services:
       retries: 3
 
   phoxtra-console:
-    image: appwrite/console:1.9.6
+    image: appwrite/console:latest
     container_name: phoxtra-cloud-console
     restart: unless-stopped
     env_file:
